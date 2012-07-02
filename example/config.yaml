@@ -1,0 +1,8 @@
+spring:
+    appContextType: classpath
+    
+    configLocations:
+       - dropwizard-service.xml
+       
+    resources:
+       - helloResource
