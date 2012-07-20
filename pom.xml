@@ -21,6 +21,21 @@
 		<spring.version>3.1.1.RELEASE</spring.version>
 	</properties>
 
+
+        <scm>
+                <connection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</connection>
+                <developerConnection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</developerConnection>
+                <url>git@github.com:hmsonline/dropwizard-spring.git</url>
+        </scm>
+
+        <developers>
+                <developer>
+                        <id>boneill42</id>
+                        <name>Brian O'Neill</name>
+                        <email>bone@alumni.brown.edu</email>
+                </developer>
+        </developers>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.yammer.dropwizard</groupId>
