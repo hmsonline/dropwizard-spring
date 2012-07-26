@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
-	<prerequisites>
-		<maven>3.0.0</maven>
-	</prerequisites>
 
 	<groupId>com.hmsonline</groupId>
 	<artifactId>dropwizard-spring</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
+        <description>Spring Integration for DropWizard</description>
+        <url>https://github.com/hmsonline/dropwizard-spring</url>
 
 	<name>Dropwizard-spring</name>
+
+        <parent>
+                <groupId>org.sonatype.oss</groupId>
+                <artifactId>oss-parent</artifactId>
+                <version>7</version>
+        </parent>
+
+        <licenses>
+                <license>
+                        <name>The Apache Software License, Version 2.0</name>
+                        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+                        <distribution>repo</distribution>
+                </license>
+        </licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
