@@ -7,6 +7,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * @org.apache.xbean.XBean element="hello"
+ */
 @Path("/hello")
 public class HelloResource {
     

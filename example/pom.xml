@@ -19,6 +19,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<dropwizard.version>0.4.3</dropwizard.version>
 		<spring.version>3.1.1.RELEASE</spring.version>
+		<xbean.version>3.12</xbean.version>
 		<mainClass>com.hmsonline.dropwizard.spring.SpringService</mainClass>
 	</properties>
 
@@ -38,6 +39,11 @@
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+    <dependency>
+			<groupId>org.apache.xbean</groupId>
+			<artifactId>xbean-spring</artifactId>
+			<version>${xbean.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -48,6 +54,22 @@
 
 	<build>
 		<plugins>
+      <plugin>
+        <groupId>org.apache.xbean</groupId>
+        <artifactId>maven-xbean-plugin</artifactId>
+        <version>${xbean.version}</version>
+        <executions>
+          <execution>
+            <configuration>
+              <strictXsdOrder>false</strictXsdOrder>
+              <namespace>http://hmsonline.com/schema/example-dropwizard</namespace>
+            </configuration>
+            <goals>
+              <goal>mapping</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 			<plugin>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.7</version>
@@ -119,7 +141,7 @@
 					<execution>
 						<id>attach-sources</id>
 						<goals>
-							<goal>jar</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
