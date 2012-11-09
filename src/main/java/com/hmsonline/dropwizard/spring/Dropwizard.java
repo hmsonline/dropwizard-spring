@@ -5,6 +5,9 @@ package com.hmsonline.dropwizard.spring;
 import com.yammer.dropwizard.config.Configuration;
 import com.yammer.dropwizard.config.Environment;
 
+/**
+ * @org.apache.xbean.XBean rootElement="true"
+ */
 public class Dropwizard {
     
     private Configuration configuration;
