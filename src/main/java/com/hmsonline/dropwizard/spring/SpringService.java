@@ -14,7 +14,8 @@ import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
-
+    private ApplicationContext appCtx;
+    
     public static void main(String[] args) throws Exception {
         new SpringService("dropwizard-spring").run(args);
     }
@@ -33,7 +34,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
 
-        ApplicationContext appCtx = initSpring(config, parentCtx);
+        appCtx = initSpring(config, parentCtx);
         loadResourceBeans(config.getResources(), appCtx, environment);
         loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
         loadManagedBeans(config.getManaged(), appCtx, environment);
@@ -130,4 +131,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         return appCtx;
     }
 
+    protected ApplicationContext getAppCtx() {
+        return appCtx;
+    }
 }
