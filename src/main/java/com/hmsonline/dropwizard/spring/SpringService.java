@@ -8,6 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.tasks.Task;
@@ -16,16 +17,24 @@ import com.yammer.metrics.core.HealthCheck;
 public class SpringService extends Service<SpringServiceConfiguration> {
 
     public static void main(String[] args) throws Exception {
-        new SpringService("dropwizard-spring").run(args);
+        new SpringService().run(args);
     }
 
-    protected SpringService(String serviceName) {
+   /* protected SpringService(String serviceName) {
         super(serviceName);
-    }
-
+    }*/
+    
     @Override
-    protected void initialize(SpringServiceConfiguration configuration, Environment environment) {
-        SpringConfiguration config = configuration.getSpring();
+	public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
+		
+    	bootstrap.setName("dropwizard-spring");
+		
+	}
+
+	@Override
+	public void run(SpringServiceConfiguration configuration, Environment environment) throws Exception {
+		
+		SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
 
@@ -43,11 +52,12 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
-
-    }
+		
+	}
 
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         for (String resource : resources) {
+        	System.out.println("RESOURCE:" + resource);
             env.addResource(ctx.getBean(resource));
         }
     }
@@ -129,5 +139,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         }
         return appCtx;
     }
+
+	
 
 }
