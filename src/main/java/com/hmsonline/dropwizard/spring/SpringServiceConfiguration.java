@@ -4,8 +4,7 @@ package com.hmsonline.dropwizard.spring;
 
 import javax.validation.constraints.NotNull;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
 
 public class SpringServiceConfiguration extends Configuration {
