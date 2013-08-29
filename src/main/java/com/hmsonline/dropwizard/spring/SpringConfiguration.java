@@ -1,10 +1,12 @@
+// Copyright (c) 2012 Health Market Science, Inc.
+
 package com.hmsonline.dropwizard.spring;
 
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.yammer.dropwizard.config.Configuration;
 
 public class SpringConfiguration extends Configuration {
