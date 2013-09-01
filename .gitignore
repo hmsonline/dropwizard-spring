@@ -9,3 +9,8 @@
 .project
 .settings/
 target/
+
+#idea files
+*.ipr
+*.iml
+*.iws
