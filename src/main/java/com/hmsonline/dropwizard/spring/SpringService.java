@@ -1,5 +1,3 @@
-// Copyright (c) 2012 Health Market Science, Inc.
-
 package com.hmsonline.dropwizard.spring;
 
 import java.util.List;
@@ -58,9 +56,10 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 	}
 
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
-        for (String resource : resources) {
-        	System.out.println("RESOURCE:" + resource);
-            env.addResource(ctx.getBean(resource));
+        if (resources != null) {
+            for (String resource : resources) {
+                env.addResource(ctx.getBean(resource));
+            }
         }
     	
     }
@@ -142,7 +141,5 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         }
         return appCtx;
     }
-
-	
 
 }
