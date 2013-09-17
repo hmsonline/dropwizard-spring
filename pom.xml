@@ -28,8 +28,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<dropwizard.version>0.4.3</dropwizard.version>
-		<spring.version>3.1.1.RELEASE</spring.version>
+		<dropwizard.version>0.6.2</dropwizard.version>
+		<spring.version>3.2.4.RELEASE</spring.version>
 	</properties>
 
 
@@ -49,21 +49,27 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.yammer.dropwizard</groupId>
-			<artifactId>dropwizard-core</artifactId>
-			<version>${dropwizard.version}</version>
+		   <groupId>com.yammer.dropwizard</groupId>
+		   <artifactId>dropwizard-core</artifactId>
+		   <version>${dropwizard.version}</version>
+		</dependency>
+                <dependency>
+                   <groupId>com.yammer.dropwizard</groupId>
+                   <artifactId>dropwizard-migrations</artifactId>
+                   <version>${dropwizard.version}</version>
+                </dependency>
+		<dependency>
+		   <groupId>org.springframework</groupId>
+		   <artifactId>spring-context</artifactId>
+		   <version>${spring.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
+		   <groupId>junit</groupId>
+	           <artifactId>junit</artifactId>
+		   <version>4.10</version>
+	           <scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
+		
 	</dependencies>
 
 	<build>

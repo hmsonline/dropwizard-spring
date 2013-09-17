@@ -7,25 +7,39 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
+	
+	private String serviceName = "<unknown>"; 
 
     public static void main(String[] args) throws Exception {
-        new SpringService("dropwizard-spring").run(args);
+    	SpringService springService = new SpringService();
+    	springService.setServiceName("dropwizard-spring");
+        springService.run(args);
     }
 
-    protected SpringService(String serviceName) {
-        super(serviceName);
+    public void setServiceName(String serviceName) {
+    	this.serviceName = serviceName;
     }
-
+    
     @Override
-    protected void initialize(SpringServiceConfiguration configuration, Environment environment) {
-        SpringConfiguration config = configuration.getSpring();
+    public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
+    	bootstrap.setName(serviceName);
+    	bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+    }
+    
+    @Override
+    public void run(SpringServiceConfiguration configuration, Environment environment) {
+
+    	SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
 
