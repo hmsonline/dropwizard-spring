@@ -84,7 +84,5 @@ public class SpringConfiguration extends Configuration {
     public List<String> getTasks() {
         return tasks;
     }
-    
-    
 
 }

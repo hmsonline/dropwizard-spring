@@ -1,9 +1,7 @@
+// Copyright (c) 2012 Health Market Science, Inc.
 package com.hmsonline.dropwizard.spring;
 
 import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Path;
 
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
@@ -24,16 +22,14 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     }
 
     @Override
-	public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
-		
-    	bootstrap.setName("dropwizard-spring");
-		
-	}
+    public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
+        bootstrap.setName("dropwizard-spring");
+    }
 
-	@Override
-	public void run(SpringServiceConfiguration configuration, Environment environment) throws Exception {
-		
-		SpringConfiguration config = configuration.getSpring();
+    @Override
+    public void run(SpringServiceConfiguration configuration, Environment environment) throws Exception {
+
+        SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
 
@@ -42,7 +38,6 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         dw.setEnvironment(environment);
 
         ApplicationContext appCtx = initSpring(config, parentCtx);
-        //appCtx.getBeansWithAnnotation(Path.class);
         loadResourceBeans(config.getResources(), appCtx, environment);
         loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
         loadManagedBeans(config.getManaged(), appCtx, environment);
@@ -52,8 +47,8 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
-		
-	}
+
+    }
 
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         if (resources != null) {
@@ -61,7 +56,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
                 env.addResource(ctx.getBean(resource));
             }
         }
-    	
+
     }
 
     private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
