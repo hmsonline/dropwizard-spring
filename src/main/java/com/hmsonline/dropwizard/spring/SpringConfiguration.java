@@ -1,3 +1,5 @@
+// Copyright (c) 2012 Health Market Science, Inc.
+
 package com.hmsonline.dropwizard.spring;
 
 import java.util.List;
@@ -82,7 +84,5 @@ public class SpringConfiguration extends Configuration {
     public List<String> getTasks() {
         return tasks;
     }
-    
-    
 
 }
