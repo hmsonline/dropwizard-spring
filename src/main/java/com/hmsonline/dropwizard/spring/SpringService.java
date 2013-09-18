@@ -17,30 +17,23 @@ import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
-	
-	private String serviceName = "<unknown>"; 
 
     public static void main(String[] args) throws Exception {
-    	SpringService springService = new SpringService();
-    	springService.setServiceName("dropwizard-spring");
-        springService.run(args);
-    }
-
-    public void setServiceName(String serviceName) {
-    	this.serviceName = serviceName;
+        new SpringService().run(args);
     }
 
     @Override
     public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
-    	bootstrap.setName(serviceName);
-    	// This is needed to avoid an exception when deserializing Json to an ArrayList<String>
-    	bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        bootstrap.setName("dropwizard-spring");
+        // This is needed to avoid an exception when deserializing Json to an
+        // ArrayList<String>
+        bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
-    
+
     @Override
     public void run(SpringServiceConfiguration configuration, Environment environment) {
 
-    	SpringConfiguration config = configuration.getSpring();
+        SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
 
