@@ -21,7 +21,6 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 	private String serviceName = "<unknown>"; 
 
     public static void main(String[] args) throws Exception {
-<<<<<<< HEAD
     	SpringService springService = new SpringService();
     	springService.setServiceName("dropwizard-spring");
         springService.run(args);
@@ -29,33 +28,19 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
     public void setServiceName(String serviceName) {
     	this.serviceName = serviceName;
-=======
-        new SpringService().run(args);
     }
 
-    @Override
-    public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
-        bootstrap.setName("dropwizard-spring");
->>>>>>> 5b80fa6a8fe0515eec643eb3fa2e5fade19f6df9
-    }
-    
     @Override
     public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
     	bootstrap.setName(serviceName);
+    	// This is needed to avoid an exception when deserializing Json to an ArrayList<String>
     	bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-
     }
     
     @Override
-<<<<<<< HEAD
     public void run(SpringServiceConfiguration configuration, Environment environment) {
 
     	SpringConfiguration config = configuration.getSpring();
-=======
-    public void run(SpringServiceConfiguration configuration, Environment environment) throws Exception {
-
-        SpringConfiguration config = configuration.getSpring();
->>>>>>> 5b80fa6a8fe0515eec643eb3fa2e5fade19f6df9
 
         ApplicationContext parentCtx = this.initSpringParent();
 
