@@ -1,56 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.hmsonline</groupId>
 	<artifactId>dropwizard-spring</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-        <description>Spring Integration for DropWizard</description>
-        <url>https://github.com/hmsonline/dropwizard-spring</url>
+	<description>Spring Integration for DropWizard</description>
+	<url>https://github.com/hmsonline/dropwizard-spring</url>
 
 	<name>Dropwizard-spring</name>
 
-        <parent>
-                <groupId>org.sonatype.oss</groupId>
-                <artifactId>oss-parent</artifactId>
-                <version>7</version>
-        </parent>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 
-        <licenses>
-                <license>
-                        <name>The Apache Software License, Version 2.0</name>
-                        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-                        <distribution>repo</distribution>
-                </license>
-        </licenses>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<dropwizard.version>0.6.2</dropwizard.version>
-		<spring.version>3.1.1.RELEASE</spring.version>
+		<spring.version>3.2.4.RELEASE</spring.version>
 	</properties>
 
 
-        <scm>
-                <connection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</connection>
-                <developerConnection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</developerConnection>
-                <url>git@github.com:hmsonline/dropwizard-spring.git</url>
-        </scm>
+	<scm>
+		<connection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</connection>
+		<developerConnection>scm:git:git@github.com:hmsonline/dropwizard-spring.git</developerConnection>
+		<url>git@github.com:hmsonline/dropwizard-spring.git</url>
+	</scm>
 
-        <developers>
-                <developer>
-                        <id>boneill42</id>
-                        <name>Brian O'Neill</name>
-                        <email>bone@alumni.brown.edu</email>
-                </developer>
-        </developers>
+	<developers>
+		<developer>
+			<id>boneill42</id>
+			<name>Brian O'Neill</name>
+			<email>bone@alumni.brown.edu</email>
+		</developer>
+	</developers>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.yammer.dropwizard</groupId>
 			<artifactId>dropwizard-core</artifactId>
+			<version>${dropwizard.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yammer.dropwizard</groupId>
+			<artifactId>dropwizard-migrations</artifactId>
 			<version>${dropwizard.version}</version>
 		</dependency>
 		<dependency>
@@ -64,6 +70,7 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>

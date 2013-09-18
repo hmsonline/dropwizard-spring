@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -16,20 +17,30 @@ import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
+	
+	private String serviceName = "<unknown>"; 
 
     public static void main(String[] args) throws Exception {
-        new SpringService().run(args);
+    	SpringService springService = new SpringService();
+    	springService.setServiceName("dropwizard-spring");
+        springService.run(args);
+    }
+
+    public void setServiceName(String serviceName) {
+    	this.serviceName = serviceName;
     }
 
     @Override
     public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
-        bootstrap.setName("dropwizard-spring");
+    	bootstrap.setName(serviceName);
+    	// This is needed to avoid an exception when deserializing Json to an ArrayList<String>
+    	bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
-
+    
     @Override
-    public void run(SpringServiceConfiguration configuration, Environment environment) throws Exception {
+    public void run(SpringServiceConfiguration configuration, Environment environment) {
 
-        SpringConfiguration config = configuration.getSpring();
+    	SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
 
