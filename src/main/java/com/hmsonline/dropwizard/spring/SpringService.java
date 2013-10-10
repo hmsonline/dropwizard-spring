@@ -2,7 +2,12 @@
 package com.hmsonline.dropwizard.spring;
 
 import java.util.List;
+import java.util.Map;
 
+import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
+import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
+import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
+import com.yammer.dropwizard.config.FilterBuilder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,6 +20,9 @@ import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
+import org.springframework.web.context.support.XmlWebApplicationContext;
+
+import javax.servlet.Filter;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
 
@@ -31,8 +39,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     }
 
     @Override
-    public void run(SpringServiceConfiguration configuration, Environment environment) {
-
+    public void run(SpringServiceConfiguration configuration, Environment environment) throws ClassNotFoundException {
         SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
@@ -49,9 +56,28 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         loadJerseyProviders(config.getJerseyProviders(), appCtx, environment);
         loadTasks(config.getTasks(), appCtx, environment);
 
+        // Add fitler/servlet/servlet listeners if the context is web context.
+        if (appCtx instanceof XmlWebApplicationContext) {
+            // add filters
+            loadFitlers(config.getFilters(), appCtx, environment);
+
+            // add servlet listener.
+            environment.addServletListeners(new RestContextLoaderListener((XmlWebApplicationContext) appCtx));
+        }
+
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
 
+    }
+
+    private void loadFitlers(Map<String, FilterConfiguration> filters, ApplicationContext appCtx, Environment environment) throws ClassNotFoundException {
+        if (filters != null) {
+            for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
+                FilterConfiguration filter = filterEntry.getValue();
+                FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
+                filterConfig.setName(filterEntry.getKey());
+            }
+        }
     }
 
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
@@ -127,16 +153,29 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
     private ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
         ApplicationContext appCtx = null;
+        // Get Application Context Type
         String ctxType = config.getAppContextType();
+        // Get Config Location Type.
+        String cfgLocationType = config.getConfigLocationsType();
         String[] configLocations = config.getConfigLocations().toArray(new String[config.getConfigLocations().size()]);
 
-        if (ctxType.equals("file")) {
+        if ("web".equals(ctxType)) {
+            // Create Web Application Context.
+            appCtx = new XmlRestWebApplicationContext(configLocations, cfgLocationType, true, parent);
+
+        } else if ("application".equals(ctxType)) {
+            // Create Application Context.
+            if ("file".equals(cfgLocationType)) {
             appCtx = new FileSystemXmlApplicationContext(configLocations, true, parent);
         } else if (ctxType.equals("classpath")) {
             appCtx = new ClassPathXmlApplicationContext(configLocations, true, parent);
         } else {
             throw new IllegalArgumentException(
-                    "Configuration Error: appContextType must be either 'file' or 'classpath'");
+                        "Configuration Error: configLocationsType must be either 'file' or 'classpath'");
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Configuration Error: appContextType must be either 'web' or 'application'");
         }
         return appCtx;
     }
