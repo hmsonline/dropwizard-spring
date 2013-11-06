@@ -1,6 +1,7 @@
 // Copyright (c) 2012 Health Market Science, Inc.
 package com.hmsonline.dropwizard.spring;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,6 @@ import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.servlet.Filter;
 
@@ -56,13 +56,9 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         loadJerseyProviders(config.getJerseyProviders(), appCtx, environment);
         loadTasks(config.getTasks(), appCtx, environment);
 
-        // Add fitler/servlet/servlet listeners if the context is web context.
-        if (appCtx instanceof XmlWebApplicationContext) {
-            // add filters
-            loadFitlers(config.getFilters(), appCtx, environment);
-
-            // add servlet listener.
-            environment.addServletListeners(new RestContextLoaderListener((XmlWebApplicationContext) appCtx));
+        // Load filter or listeners for WebApplicationContext.
+        if (appCtx instanceof XmlRestWebApplicationContext) {
+            loadWebConfigs(environment, config, appCtx);
         }
 
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
@@ -70,12 +66,34 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
     }
 
-    private void loadFitlers(Map<String, FilterConfiguration> filters, ApplicationContext appCtx, Environment environment) throws ClassNotFoundException {
+    /**
+     * Load filter or listeners for WebApplicationContext.
+     */
+    private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
+        // Load filters.
+        loadFilters(config.getFilters(), appCtx, environment);
+
+        // Load servlet listener.
+        environment.addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
+    }
+
+    /**
+     * Load all filters.
+     */
+    private void loadFilters(Map<String, FilterConfiguration> filters, ApplicationContext appCtx, Environment environment) throws ClassNotFoundException {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
+                // Add filter
                 FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
+                // Set name of filter
                 filterConfig.setName(filterEntry.getKey());
+                // Set params
+                if (filter.getParam() != null) {
+                    for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
+                        filterConfig.setInitParam(entry.getKey(), entry.getValue());
+                    }
+                }
             }
         }
     }
@@ -147,7 +165,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
     private ApplicationContext initSpringParent() {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
-                new String[] { "dropwizardSpringApplicationContext.xml" }, true);
+                new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
     }
 
@@ -159,23 +177,22 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         String cfgLocationType = config.getConfigLocationsType();
         String[] configLocations = config.getConfigLocations().toArray(new String[config.getConfigLocations().size()]);
 
-        if ("web".equals(ctxType)) {
+        if (SpringConfiguration.WEB_APPLICATION_CONTEXT.equals(ctxType)) {
             // Create Web Application Context.
             appCtx = new XmlRestWebApplicationContext(configLocations, cfgLocationType, true, parent);
 
-        } else if ("application".equals(ctxType)) {
+        } else if (SpringConfiguration.APPLICATION_CONTEXT.equals(ctxType)) {
+
             // Create Application Context.
-            if ("file".equals(cfgLocationType)) {
-            appCtx = new FileSystemXmlApplicationContext(configLocations, true, parent);
-        } else if (ctxType.equals("classpath")) {
-            appCtx = new ClassPathXmlApplicationContext(configLocations, true, parent);
-        } else {
-            throw new IllegalArgumentException(
-                        "Configuration Error: configLocationsType must be either 'file' or 'classpath'");
+            if (SpringConfiguration.FILE_CONFIG.equals(cfgLocationType)) {
+                appCtx = new FileSystemXmlApplicationContext(configLocations, true, parent);
+            } else if (SpringConfiguration.CLASSPATH_CONFIG.equals(cfgLocationType)) {
+                appCtx = new ClassPathXmlApplicationContext(configLocations, true, parent);
+            } else {
+                throw new IllegalArgumentException(MessageFormat.format("Configuration Error: configLocationsType must be either \"{0}\" or \"{1}\"", SpringConfiguration.FILE_CONFIG, SpringConfiguration.CLASSPATH_CONFIG));
             }
         } else {
-            throw new IllegalArgumentException(
-                    "Configuration Error: appContextType must be either 'web' or 'application'");
+            throw new IllegalArgumentException(MessageFormat.format("Configuration Error: appContextType must be either \"{0}\" or \"{1}\"", SpringConfiguration.WEB_APPLICATION_CONTEXT, SpringConfiguration.APPLICATION_CONTEXT));
         }
         return appCtx;
     }

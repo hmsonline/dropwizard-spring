@@ -1,6 +1,8 @@
 spring:
-    appContextType: classpath
-    
+    appContextType: web
+
+    configLocationsType: classpath
+
     configLocations:
        - dropwizard-service.xml
        

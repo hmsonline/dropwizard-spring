@@ -10,6 +10,9 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 import javax.servlet.ServletContext;
 
+/**
+ * RestContextLoaderListener
+ */
 public class RestContextLoaderListener extends ContextLoaderListener {
     @Autowired
     private XmlWebApplicationContext applicationContext;

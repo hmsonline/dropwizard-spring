@@ -6,17 +6,18 @@ package com.hmsonline.dropwizard.spring.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * FilterConfiguration is config object for servlet or filter.
- */
-public class FilterConfiguration {
-    // Full name of filter/servlet class.
-    @JsonProperty
-    private String clazz;
+import java.util.Map;
 
-    // Url pattern handled by this filter.
+public class FilterConfiguration {
+
     @JsonProperty
-    private String url;
+    private String clazz; // Filter class.
+
+    @JsonProperty
+    private String url; // URL pattern
+
+    @JsonProperty
+    private Map<String, String> param; // Init params.
 
     public String getUrl() {
         return url;
@@ -32,5 +33,13 @@ public class FilterConfiguration {
 
     public void setClazz(String clazz) {
         this.clazz = clazz;
+    }
+
+    public Map<String, String> getParam() {
+        return param;
+    }
+
+    public void setParam(Map<String, String> param) {
+        this.param = param;
     }
 }
