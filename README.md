@@ -17,7 +17,7 @@ With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizar
 	<dependency>
 		<groupId>com.hmsonline</groupId>
 		<artifactId>dropwizard-spring</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<version>0.2.1-SNAPSHOT</version>
 	</dependency>
 
 **Maven Shade Plugin Configuration**
@@ -74,15 +74,27 @@ This is required to have maven build a "fat," executable jar file.
 	# dropwizard-spring sample service configuration
 
 	spring:
-	    # Spring Context Type (Required)
-	    # either "file" or "classpath"
-	    appContextType: file
+
+        # Spring Context Type (Required)
+        # either "web" or "app"
+        appContextType: web
+
+        # Resource Location Type (Required)
+        # either "file" or "classpath"
+	    configLocationsType: file
     
 	    # Spring Config Locations (Required)
 	    # The location of one or more beans.xml files
 	    configLocations:
 	       - conf/dropwizard-beans.xml
-       
+
+        # Servlet Filter
+        # List of FilterConfiguration
+        filters:
+            springSecurityFilterChain:
+                clazz: org.springframework.web.filter.DelegatingFilterProxy
+                url: "/*"
+
 	    # JAX-RS Resources (Required if you want your service to do anything)
 	    # one or more spring beans that are JAX-RS resources
 	    resources:
