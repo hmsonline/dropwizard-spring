@@ -1,8 +1,14 @@
 // Copyright (c) 2012 Health Market Science, Inc.
 package com.hmsonline.dropwizard.spring;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
+import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
+import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
+import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
+import com.yammer.dropwizard.config.FilterBuilder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,6 +21,8 @@ import com.yammer.dropwizard.config.Environment;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
+
+import javax.servlet.Filter;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
 
@@ -31,8 +39,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     }
 
     @Override
-    public void run(SpringServiceConfiguration configuration, Environment environment) {
-
+    public void run(SpringServiceConfiguration configuration, Environment environment) throws ClassNotFoundException {
         SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
@@ -49,9 +56,46 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         loadJerseyProviders(config.getJerseyProviders(), appCtx, environment);
         loadTasks(config.getTasks(), appCtx, environment);
 
+        // Load filter or listeners for WebApplicationContext.
+        if (appCtx instanceof XmlRestWebApplicationContext) {
+            loadWebConfigs(environment, config, appCtx);
+        }
+
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
 
+    }
+
+    /**
+     * Load filter or listeners for WebApplicationContext.
+     */
+    private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
+        // Load filters.
+        loadFilters(config.getFilters(), appCtx, environment);
+
+        // Load servlet listener.
+        environment.addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
+    }
+
+    /**
+     * Load all filters.
+     */
+    private void loadFilters(Map<String, FilterConfiguration> filters, ApplicationContext appCtx, Environment environment) throws ClassNotFoundException {
+        if (filters != null) {
+            for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
+                FilterConfiguration filter = filterEntry.getValue();
+                // Add filter
+                FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
+                // Set name of filter
+                filterConfig.setName(filterEntry.getKey());
+                // Set params
+                if (filter.getParam() != null) {
+                    for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
+                        filterConfig.setInitParam(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        }
     }
 
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
@@ -121,22 +165,34 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
     private ApplicationContext initSpringParent() {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
-                new String[] { "dropwizardSpringApplicationContext.xml" }, true);
+                new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
     }
 
     private ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
         ApplicationContext appCtx = null;
+        // Get Application Context Type
         String ctxType = config.getAppContextType();
+        // Get Config Location Type.
+        String cfgLocationType = config.getConfigLocationsType();
         String[] configLocations = config.getConfigLocations().toArray(new String[config.getConfigLocations().size()]);
 
-        if (ctxType.equals("file")) {
-            appCtx = new FileSystemXmlApplicationContext(configLocations, true, parent);
-        } else if (ctxType.equals("classpath")) {
-            appCtx = new ClassPathXmlApplicationContext(configLocations, true, parent);
+        if (SpringConfiguration.WEB_APPLICATION_CONTEXT.equals(ctxType)) {
+            // Create Web Application Context.
+            appCtx = new XmlRestWebApplicationContext(configLocations, cfgLocationType, true, parent);
+
+        } else if (SpringConfiguration.APPLICATION_CONTEXT.equals(ctxType)) {
+
+            // Create Application Context.
+            if (SpringConfiguration.FILE_CONFIG.equals(cfgLocationType)) {
+                appCtx = new FileSystemXmlApplicationContext(configLocations, true, parent);
+            } else if (SpringConfiguration.CLASSPATH_CONFIG.equals(cfgLocationType)) {
+                appCtx = new ClassPathXmlApplicationContext(configLocations, true, parent);
+            } else {
+                throw new IllegalArgumentException(MessageFormat.format("Configuration Error: configLocationsType must be either \"{0}\" or \"{1}\"", SpringConfiguration.FILE_CONFIG, SpringConfiguration.CLASSPATH_CONFIG));
+            }
         } else {
-            throw new IllegalArgumentException(
-                    "Configuration Error: appContextType must be either 'file' or 'classpath'");
+            throw new IllegalArgumentException(MessageFormat.format("Configuration Error: appContextType must be either \"{0}\" or \"{1}\"", SpringConfiguration.WEB_APPLICATION_CONTEXT, SpringConfiguration.APPLICATION_CONTEXT));
         }
         return appCtx;
     }
