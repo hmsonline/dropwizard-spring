@@ -13,8 +13,16 @@ public class SpringServiceConfiguration extends Configuration {
     @JsonProperty
     private SpringConfiguration spring;
     
+    @NotNull
+    @JsonProperty
+    private ApiMetadata apiMetadata;
+    
     public SpringConfiguration getSpring(){
         return this.spring;
+    }
+    
+    public ApiMetadata getApiMetadata(){
+        return this.apiMetadata;
     }
 
 }
