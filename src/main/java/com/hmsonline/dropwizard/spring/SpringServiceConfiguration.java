@@ -15,7 +15,7 @@ public class SpringServiceConfiguration extends Configuration {
     
     @NotNull
     @JsonProperty
-    private ApiMetadata apiMetadata;
+    private ApiMetadata apiMetadata = new ApiMetadata();
     
     public SpringConfiguration getSpring(){
         return this.spring;
