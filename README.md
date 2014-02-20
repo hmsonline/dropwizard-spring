@@ -73,6 +73,16 @@ This is required to have maven build a "fat," executable jar file.
 
 	# dropwizard-spring sample service configuration
 
+	# High level information that describes the application. This can be pulled into auto documentation tools like Swagger.
+	apiMetadata:
+	    rootServerName: www.example.com
+	    title: My Example Application
+	    description: Configure and use the application via this API
+	    contact: developers@example.com
+	    license: License type here
+	    licenseUrl: http://www.example.com/license
+	    termsOfServiceUrl: http://www.example.com/tos
+	
 	spring:
 
         # Spring Context Type (Required)
