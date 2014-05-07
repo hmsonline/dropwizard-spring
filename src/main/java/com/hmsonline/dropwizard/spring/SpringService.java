@@ -88,17 +88,22 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
-                // Add filter
-                FilterHolder filterHolder = environment.getApplicationContext().addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl(), EnumSet.of(DispatcherType.REQUEST));
+
+                // Create filter holder
+                FilterHolder filterHolder = new FilterHolder((Class<? extends Filter>) Class.forName(filter.getClazz()));
 
                 // Set name of filter
                 filterHolder.setName(filterEntry.getKey());
+                
                 // Set params
                 if (filter.getParam() != null) {
                     for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
                         filterHolder.setInitParameter(entry.getKey(), entry.getValue());
                     }
                 }
+
+                // Add filter
+                environment.getApplicationContext().addFilter(filterHolder, filter.getUrl(), EnumSet.of(DispatcherType.REQUEST));
             }
         }
     }
