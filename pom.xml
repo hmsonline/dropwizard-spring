@@ -28,7 +28,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<dropwizard.version>0.6.2</dropwizard.version>
+		<dropwizard.version>0.7.0</dropwizard.version>
 		<spring.version>3.2.4.RELEASE</spring.version>
 	</properties>
 
@@ -54,7 +54,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.yammer.dropwizard</groupId>
+			<groupId>io.dropwizard</groupId>
 			<artifactId>dropwizard-core</artifactId>
 			<version>${dropwizard.version}</version>
 		</dependency>
