@@ -121,7 +121,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
                 HealthCheck healthCheckBean = (HealthCheck) ctx.getBean(healthCheck);
-                env.healthChecks().register(healthCheckBean.getClass().getSimpleName(), healthCheckBean);
+                env.healthChecks().register(healthCheck, healthCheckBean);
             }
         }
     }
