@@ -2,8 +2,8 @@
 
 package com.hmsonline.dropwizard.spring;
 
-import com.yammer.dropwizard.config.Configuration;
-import com.yammer.dropwizard.config.Environment;
+import io.dropwizard.Configuration;
+import io.dropwizard.setup.Environment;
 
 public class Dropwizard {
 

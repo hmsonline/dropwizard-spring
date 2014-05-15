@@ -3,7 +3,7 @@ package com.hmsonline.dropwizard.spring;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.yammer.dropwizard.config.Configuration;
+import io.dropwizard.Configuration;
 
 public class ApiMetadata extends Configuration {
 

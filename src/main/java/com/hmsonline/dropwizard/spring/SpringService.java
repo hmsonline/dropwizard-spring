@@ -8,34 +8,40 @@ import java.util.Map;
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
 import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
-import com.yammer.dropwizard.config.FilterBuilder;
+
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.yammer.dropwizard.Service;
-import com.yammer.dropwizard.config.Bootstrap;
-import com.yammer.dropwizard.config.Environment;
-import com.yammer.dropwizard.lifecycle.Managed;
-import com.yammer.dropwizard.tasks.Task;
-import com.yammer.metrics.core.HealthCheck;
+
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.servlets.tasks.Task;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
+import javax.servlet.ServletException;
 
-public class SpringService extends Service<SpringServiceConfiguration> {
+public class SpringService extends Application<SpringServiceConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new SpringService().run(args);
     }
 
     @Override
+    public String getName() { 
+        return "dropwizard-spring";
+    }
+
+    @Override
     public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
-        bootstrap.setName("dropwizard-spring");
-        // This is needed to avoid an exception when deserializing Json to an
-        // ArrayList<String>
-        bootstrap.getObjectMapperFactory().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        // This is needed to avoid an exception when deserializing Json to an ArrayList<String>
+        bootstrap.getObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
     @Override
@@ -63,7 +69,6 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
-
     }
 
     /**
@@ -74,7 +79,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         loadFilters(config.getFilters(), appCtx, environment);
 
         // Load servlet listener.
-        environment.addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
+        environment.servlets().addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
     }
 
     /**
@@ -84,14 +89,20 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
+
                 // Add filter
-                FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
+                //FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
                 // Set name of filter
-                filterConfig.setName(filterEntry.getKey());
+                //filterConfig.setName(filterEntry.getKey());
+
+                FilterRegistration.Dynamic addFilter = environment.servlets().addFilter(filterEntry.getKey(), 
+                        (Class<? extends Filter>) Class.forName(filter.getClazz()));
+                addFilter.getUrlPatternMappings().add(filter.getUrl());
+
                 // Set params
                 if (filter.getParam() != null) {
                     for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
-                        filterConfig.setInitParam(entry.getKey(), entry.getValue());
+                        addFilter.setInitParameter(entry.getKey(), entry.getValue());
                     }
                 }
             }
@@ -101,7 +112,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         if (resources != null) {
             for (String resource : resources) {
-                env.addResource(ctx.getBean(resource));
+                env.jersey().register(ctx.getBean(resource));
             }
         }
 
@@ -110,7 +121,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
-                env.addHealthCheck((HealthCheck) ctx.getBean(healthCheck));
+                env.healthChecks().register(healthCheck, (HealthCheck) ctx.getBean(healthCheck));
             }
         }
     }
@@ -118,7 +129,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
         if (manageds != null) {
             for (String managed : manageds) {
-                env.manage((Managed) ctx.getBean(managed));
+                env.lifecycle().manage((Managed) ctx.getBean(managed));
             }
         }
     }
@@ -126,7 +137,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
         if (lifeCycles != null) {
             for (String lifeCycle : lifeCycles) {
-                env.manage((LifeCycle) ctx.getBean(lifeCycle));
+                env.lifecycle().manage((LifeCycle) ctx.getBean(lifeCycle));
             }
         }
     }
@@ -134,7 +145,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
         if (providers != null) {
             for (String provider : providers) {
-                env.addProvider(ctx.getBean(provider));
+                env.jersey().register(ctx.getBean(provider));
             }
         }
     }
@@ -142,7 +153,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
         if (tasks != null) {
             for (String task : tasks) {
-                env.addTask((Task) ctx.getBean(task));
+                env.admin().addTask((Task) ctx.getBean(task));
             }
         }
     }
@@ -150,7 +161,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void enableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
-                env.enableJerseyFeature(feature);
+                env.jersey().enable(feature);
             }
         }
     }
@@ -158,7 +169,7 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     private void disableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
-                env.disableJerseyFeature(feature);
+                env.jersey().disable(feature);
             }
         }
     }
