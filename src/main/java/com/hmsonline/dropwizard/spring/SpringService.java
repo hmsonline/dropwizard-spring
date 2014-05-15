@@ -7,8 +7,10 @@ import java.util.Map;
 
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
 import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
+import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
 import com.yammer.dropwizard.config.FilterBuilder;
+import com.yammer.dropwizard.config.ServletBuilder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -23,6 +25,7 @@ import com.yammer.dropwizard.tasks.Task;
 import com.yammer.metrics.core.HealthCheck;
 
 import javax.servlet.Filter;
+import javax.servlet.Servlet;
 
 public class SpringService extends Service<SpringServiceConfiguration> {
 
@@ -75,6 +78,9 @@ public class SpringService extends Service<SpringServiceConfiguration> {
 
         // Load servlet listener.
         environment.addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
+
+        // Load servlets.
+        loadServlets(config.getServlets(), appCtx, environment);
     }
 
     /**
@@ -92,6 +98,30 @@ public class SpringService extends Service<SpringServiceConfiguration> {
                 if (filter.getParam() != null) {
                     for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
                         filterConfig.setInitParam(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Load all servlets.
+     */
+    private void loadServlets(Map<String, ServletConfiguration> servlets, ApplicationContext appCtx,
+            Environment environment) throws ClassNotFoundException {
+        if (servlets != null) {
+            for (Map.Entry<String, ServletConfiguration> servletEntry : servlets.entrySet()) {
+                ServletConfiguration servlet = servletEntry.getValue();
+                // Add servlet
+                ServletBuilder servletBuilder = environment.addServlet(
+                        (Class<? extends Servlet>) Class.forName(servlet.getClazz()), servlet.getUrl());
+                // Set name of servlet
+                servletBuilder.setName(servletEntry.getKey());
+
+                // Set params
+                if (servlet.getParam() != null) {
+                    for (Map.Entry<String, String> entry : servlet.getParam().entrySet()) {
+                        servletBuilder.setInitParam(entry.getKey(), entry.getValue());
                     }
                 }
             }
