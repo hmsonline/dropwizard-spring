@@ -2,6 +2,7 @@
 package com.hmsonline.dropwizard.spring;
 
 import java.text.MessageFormat;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -23,9 +24,9 @@ import io.dropwizard.setup.Environment;
 import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.servlets.tasks.Task;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
-import javax.servlet.ServletException;
 
 public class SpringService extends Application<SpringServiceConfiguration> {
 
@@ -76,7 +77,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
      */
     private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
         // Load filters.
-        loadFilters(config.getFilters(), appCtx, environment);
+        loadFilters(config.getFilters(), environment);
 
         // Load servlet listener.
         environment.servlets().addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
@@ -85,19 +86,19 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     /**
      * Load all filters.
      */
-    private void loadFilters(Map<String, FilterConfiguration> filters, ApplicationContext appCtx, Environment environment) throws ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    private void loadFilters(Map<String, FilterConfiguration> filters, Environment environment) throws ClassNotFoundException {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
 
                 // Add filter
-                //FilterBuilder filterConfig = environment.addFilter((Class<? extends Filter>) Class.forName(filter.getClazz()), filter.getUrl());
-                // Set name of filter
-                //filterConfig.setName(filterEntry.getKey());
-
-                FilterRegistration.Dynamic addFilter = environment.servlets().addFilter(filterEntry.getKey(), 
+                FilterRegistration.Dynamic addFilter = environment.servlets().addFilter(
+                        filterEntry.getKey(), 
                         (Class<? extends Filter>) Class.forName(filter.getClazz()));
-                addFilter.getUrlPatternMappings().add(filter.getUrl());
+
+                // Add servlet url mapping
+                addFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, filter.getUrl());
 
                 // Set params
                 if (filter.getParam() != null) {
