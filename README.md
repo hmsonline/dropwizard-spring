@@ -17,7 +17,7 @@ With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizar
 	<dependency>
 		<groupId>com.hmsonline</groupId>
 		<artifactId>dropwizard-spring</artifactId>
-		<version>0.2.1-SNAPSHOT</version>
+		<version>0.5.0-SNAPSHOT</version>
 	</dependency>
 
 **Maven Shade Plugin Configuration**
@@ -27,7 +27,7 @@ This is required to have maven build a "fat," executable jar file.
 	<plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-shade-plugin</artifactId>
-		<version>1.4</version>
+		<version>2.2</version>
 		<configuration>
 			<createDependencyReducedPom>true</createDependencyReducedPom>
 			<filters>
