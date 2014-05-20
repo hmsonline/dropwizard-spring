@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
 import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
+import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
 
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -27,6 +28,9 @@ import io.dropwizard.servlets.tasks.Task;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
+import javax.servlet.Servlet;
+import javax.servlet.ServletRegistration;
+
 
 public class SpringService extends Application<SpringServiceConfiguration> {
 
@@ -73,7 +77,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     }
 
     /**
-     * Load filter or listeners for WebApplicationContext.
+     * Load filter, servlets or listeners for WebApplicationContext.
      */
     private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
         // Load filters.
@@ -81,6 +85,9 @@ public class SpringService extends Application<SpringServiceConfiguration> {
 
         // Load servlet listener.
         environment.servlets().addServletListeners(new RestContextLoaderListener((XmlRestWebApplicationContext) appCtx));
+
+        // Load servlets.
+        loadServlets(config.getServlets(), environment);
     }
 
     /**
@@ -104,6 +111,32 @@ public class SpringService extends Application<SpringServiceConfiguration> {
                 if (filter.getParam() != null) {
                     for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
                         addFilter.setInitParameter(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Load all servlets.
+     */
+    @SuppressWarnings("unchecked")
+    private void loadServlets(Map<String, ServletConfiguration> servlets, Environment environment) throws ClassNotFoundException {
+        if (servlets != null) {
+            for (Map.Entry<String, ServletConfiguration> servletEntry : servlets.entrySet()) {
+                ServletConfiguration servlet = servletEntry.getValue();
+
+                // Add servlet
+                ServletRegistration.Dynamic addServlet = environment.servlets().addServlet(servletEntry.getKey(), 
+                        (Class<? extends Servlet>) Class.forName(servlet.getClazz()));
+
+                // Add servlet url mapping
+                addServlet.addMapping(servlet.getUrl());
+
+                // Set params
+                if (servlet.getParam() != null) {
+                    for (Map.Entry<String, String> entry : servlet.getParam().entrySet()) {
+                        addServlet.setInitParameter(entry.getKey(), entry.getValue());
                     }
                 }
             }

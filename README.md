@@ -3,7 +3,7 @@ dropwizard-spring
 
 **dropwizard-spring** provides a clean, easy way to integrate the spring framework with dropwizard-based web service projects.
 
-With **dropwizard-spring** you configure your dropwizard components (resources, healthchecks, jersey providers, managed objects, etc.) 
+With **dropwizard-spring** you configure your dropwizard components (resources, healthchecks, jersey providers, managed objects, servlets, filters, etc.) 
 entirely with spring, and tell the spring service which components to enable using a simple YAML configuration.
 
 With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizard.Service`, instead you reference the provided 
@@ -104,6 +104,12 @@ This is required to have maven build a "fat," executable jar file.
             springSecurityFilterChain:
                 clazz: org.springframework.web.filter.DelegatingFilterProxy
                 url: "/*"
+
+        # List of ServletConfiguration
+        servlets:
+            cxf:
+                clazz: org.apache.cxf.transport.servlet.CXFServlet 
+                url: "/ws/soap/*"
 
 	    # JAX-RS Resources (Required if you want your service to do anything)
 	    # one or more spring beans that are JAX-RS resources
