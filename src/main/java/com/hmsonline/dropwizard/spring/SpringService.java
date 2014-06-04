@@ -13,21 +13,18 @@ import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
 import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
 import io.dropwizard.Application;
-import io.dropwizard.lifecycle.Managed;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.component.LifeCycle;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
 import javax.servlet.Servlet;
-import javax.servlet.ServletRegistration;
 
 
 public class SpringService extends Application<SpringServiceConfiguration> {
@@ -125,19 +122,21 @@ public class SpringService extends Application<SpringServiceConfiguration> {
             for (Map.Entry<String, ServletConfiguration> servletEntry : servlets.entrySet()) {
                 ServletConfiguration servlet = servletEntry.getValue();
 
-                // Add servlet
-                ServletRegistration.Dynamic addServlet = environment.servlets().addServlet(servletEntry.getKey(), 
-                        (Class<? extends Servlet>) Class.forName(servlet.getClazz()));
+                // Create servlet holder
+                ServletHolder servletHolder = new ServletHolder((Class<? extends Servlet>) Class.forName(servlet.getClazz()));
 
-                // Add servlet url mapping
-                addServlet.addMapping(servlet.getUrl());
+                // Set name of servlet
+                servletHolder.setName(servletEntry.getKey());
 
                 // Set params
                 if (servlet.getParam() != null) {
                     for (Map.Entry<String, String> entry : servlet.getParam().entrySet()) {
-                        addServlet.setInitParameter(entry.getKey(), entry.getValue());
+                        servletHolder.setInitParameter(entry.getKey(), entry.getValue());
                     }
                 }
+
+                // Add servlet
+                environment.getApplicationContext().addServlet(servletHolder, servlet.getUrl());
             }
         }
     }
