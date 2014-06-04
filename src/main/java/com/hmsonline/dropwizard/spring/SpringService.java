@@ -6,24 +6,22 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import com.codahale.metrics.health.HealthCheck;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
 import com.hmsonline.dropwizard.spring.web.RestContextLoaderListener;
 import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
-
+import io.dropwizard.Application;
+import io.dropwizard.lifecycle.Managed;
+import io.dropwizard.servlets.tasks.Task;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-import com.codahale.metrics.health.HealthCheck;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.servlets.tasks.Task;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -39,7 +37,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     }
 
     @Override
-    public String getName() { 
+    public String getName() {
         return "dropwizard-spring";
     }
 
@@ -99,20 +97,21 @@ public class SpringService extends Application<SpringServiceConfiguration> {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
 
-                // Add filter
-                FilterRegistration.Dynamic addFilter = environment.servlets().addFilter(
-                        filterEntry.getKey(), 
-                        (Class<? extends Filter>) Class.forName(filter.getClazz()));
+                // Create filter holder
+                FilterHolder filterHolder = new FilterHolder((Class<? extends Filter>) Class.forName(filter.getClazz()));
 
-                // Add servlet url mapping
-                addFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, filter.getUrl());
-
+                // Set name of filter
+                filterHolder.setName(filterEntry.getKey());
+                
                 // Set params
                 if (filter.getParam() != null) {
                     for (Map.Entry<String, String> entry : filter.getParam().entrySet()) {
-                        addFilter.setInitParameter(entry.getKey(), entry.getValue());
+                        filterHolder.setInitParameter(entry.getKey(), entry.getValue());
                     }
                 }
+
+                // Add filter
+                environment.getApplicationContext().addFilter(filterHolder, filter.getUrl(), EnumSet.of(DispatcherType.REQUEST));
             }
         }
     }
@@ -155,7 +154,8 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
-                env.healthChecks().register(healthCheck, (HealthCheck) ctx.getBean(healthCheck));
+                HealthCheck healthCheckBean = (HealthCheck) ctx.getBean(healthCheck);
+                env.healthChecks().register(healthCheck, healthCheckBean);
             }
         }
     }
@@ -163,7 +163,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
         if (manageds != null) {
             for (String managed : manageds) {
-                env.lifecycle().manage((Managed) ctx.getBean(managed));
+                env.getApplicationContext().manage(ctx.getBean(managed));
             }
         }
     }
@@ -171,7 +171,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
         if (lifeCycles != null) {
             for (String lifeCycle : lifeCycles) {
-                env.lifecycle().manage((LifeCycle) ctx.getBean(lifeCycle));
+                env.getApplicationContext().manage(ctx.getBean(lifeCycle));
             }
         }
     }

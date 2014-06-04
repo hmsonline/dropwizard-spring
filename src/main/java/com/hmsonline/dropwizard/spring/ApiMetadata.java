@@ -1,9 +1,9 @@
 package com.hmsonline.dropwizard.spring;
 
+import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
 
 public class ApiMetadata extends Configuration {
 
