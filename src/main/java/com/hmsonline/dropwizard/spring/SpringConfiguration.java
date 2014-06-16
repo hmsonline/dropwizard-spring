@@ -4,7 +4,8 @@ package com.hmsonline.dropwizard.spring;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
-import com.yammer.dropwizard.config.Configuration;
+import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
+import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.List;
@@ -59,6 +60,8 @@ public class SpringConfiguration extends Configuration {
     @JsonProperty
     private Map<String, FilterConfiguration> filters;
 
+    @JsonProperty
+    private Map<String, ServletConfiguration> servlets;
 
     public String getAppContextType() {
         return appContextType;
@@ -106,6 +109,14 @@ public class SpringConfiguration extends Configuration {
 
     public void setFilters(Map<String, FilterConfiguration> filters) {
         this.filters = filters;
+    }
+
+    public Map<String, ServletConfiguration> getServlets() {
+        return servlets;
+    }
+
+    public void setServlets(Map<String, ServletConfiguration> servlets) {
+        this.servlets = servlets;
     }
 
     public String getConfigLocationsType() {

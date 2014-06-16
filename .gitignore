@@ -11,6 +11,7 @@
 target/
 
 #idea files
+.idea
 *.ipr
 *.iml
 *.iws
