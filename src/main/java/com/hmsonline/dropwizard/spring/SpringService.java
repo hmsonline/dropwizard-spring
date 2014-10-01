@@ -26,8 +26,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
-
-public class SpringService extends Application<SpringServiceConfiguration> {
+public class SpringService<T extends SpringServiceConfiguration> extends Application<T> {
 
     public static void main(String[] args) throws Exception {
         new SpringService().run(args);
@@ -39,13 +38,13 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     }
 
     @Override
-    public void initialize(Bootstrap<SpringServiceConfiguration> bootstrap) {
+    public void initialize(Bootstrap<T> bootstrap) {
         // This is needed to avoid an exception when deserializing Json to an ArrayList<String>
         bootstrap.getObjectMapper().enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
     @Override
-    public void run(SpringServiceConfiguration configuration, Environment environment) throws ClassNotFoundException {
+    public void run(T configuration, Environment environment) throws ClassNotFoundException {
         SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = this.initSpringParent();
