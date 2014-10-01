@@ -189,3 +189,15 @@ The spring beans.xml example below illustrates how to reference values from the 
 		</bean>
 	</beans>
 
+## Using an IDE to run your dropwizard-spring service
+If you'd like to run or debug your dropwizard-spring service with an IDE (e.g. IntelliJ IDEA) follow these simple steps:
+* Click `Run` -> `Edit Configurations`
+* Add a new configuration (Application)
+* Give it a name like Dropwizard Spring
+* For `Main Class` enter `com.hmsonline.dropwizard.spring.SpringService`
+* For `Program arguments` enter `server conf/config.yaml`
+* For `Working directory` enter the root directory of your webservice (the location of your pom.xml)
+* For `Use classpath of module` select your webservice application
+* Remove `Make` from `Before launch`
+* Click OK
+* Now, in the menu you can click `Run` -> `Run 'Dropwizard Spring'` or `Run` -> `Debug 'Dropwizard Spring'`
