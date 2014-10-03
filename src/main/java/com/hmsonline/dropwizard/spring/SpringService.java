@@ -18,6 +18,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -28,6 +31,7 @@ import javax.servlet.Servlet;
 
 
 public class SpringService extends Application<SpringServiceConfiguration> {
+    private static final Logger LOG = LoggerFactory.getLogger(SpringService.class);
 
     public static void main(String[] args) throws Exception {
         new SpringService().run(args);
@@ -144,7 +148,11 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         if (resources != null) {
             for (String resource : resources) {
-                env.jersey().register(ctx.getBean(resource));
+                try {
+                    env.jersey().register(ctx.getBean(resource));
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
 
@@ -153,8 +161,12 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
-                HealthCheck healthCheckBean = (HealthCheck) ctx.getBean(healthCheck);
-                env.healthChecks().register(healthCheck, healthCheckBean);
+                try {
+                    HealthCheck healthCheckBean = (HealthCheck) ctx.getBean(healthCheck);
+                    env.healthChecks().register(healthCheck, healthCheckBean);
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
     }
@@ -162,7 +174,11 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
         if (manageds != null) {
             for (String managed : manageds) {
-                env.getApplicationContext().manage(ctx.getBean(managed));
+                try {
+                    env.getApplicationContext().manage(ctx.getBean(managed));
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
     }
@@ -170,7 +186,11 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
         if (lifeCycles != null) {
             for (String lifeCycle : lifeCycles) {
-                env.getApplicationContext().manage(ctx.getBean(lifeCycle));
+                try {
+                    env.getApplicationContext().manage(ctx.getBean(lifeCycle));
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
     }
@@ -178,7 +198,11 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
         if (providers != null) {
             for (String provider : providers) {
-                env.jersey().register(ctx.getBean(provider));
+                try {
+                    env.jersey().register(ctx.getBean(provider));
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
     }
@@ -186,7 +210,11 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     private void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
         if (tasks != null) {
             for (String task : tasks) {
-                env.admin().addTask((Task) ctx.getBean(task));
+                try {
+                    env.admin().addTask((Task) ctx.getBean(task));
+                } catch (NoSuchBeanDefinitionException nsbde) {
+                    logNoSuchBeanDefinitionException(nsbde);
+                }
             }
         }
     }
@@ -241,4 +269,9 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         return appCtx;
     }
 
+    private void logNoSuchBeanDefinitionException(NoSuchBeanDefinitionException nsbde) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Skipping missing Spring bean: ", nsbde);
+        }
+    }
 }
