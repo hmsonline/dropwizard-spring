@@ -4,7 +4,7 @@
 
 	<groupId>com.hmsonline</groupId>
 	<artifactId>dropwizard-spring</artifactId>
-	<version>0.5.2-SNAPSHOT</version>
+	<version>0.5.2</version>
 	<packaging>jar</packaging>
 	<description>Spring Integration for DropWizard</description>
 	<url>https://github.com/hmsonline/dropwizard-spring</url>
