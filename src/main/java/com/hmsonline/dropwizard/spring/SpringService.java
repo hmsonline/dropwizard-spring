@@ -1,4 +1,5 @@
 // Copyright (c) 2012 Health Market Science, Inc.
+// Extended by Hardiker Ltd
 package com.hmsonline.dropwizard.spring;
 
 import java.text.MessageFormat;
@@ -16,6 +17,7 @@ import io.dropwizard.Application;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -58,6 +61,8 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
 
+        parentCtx = initSpringConfigBasedBeans(parentCtx, config);
+
         ApplicationContext appCtx = initSpring(config, parentCtx);
         loadResourceBeans(config.getResources(), appCtx, environment);
         loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
@@ -78,7 +83,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     /**
      * Load filter, servlets or listeners for WebApplicationContext.
      */
-    private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
+    void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
         // Load filters.
         loadFilters(config.getFilters(), environment);
 
@@ -93,7 +98,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
      * Load all filters.
      */
     @SuppressWarnings("unchecked")
-    private void loadFilters(Map<String, FilterConfiguration> filters, Environment environment) throws ClassNotFoundException {
+    void loadFilters(Map<String, FilterConfiguration> filters, Environment environment) throws ClassNotFoundException {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
@@ -121,7 +126,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
      * Load all servlets.
      */
     @SuppressWarnings("unchecked")
-    private void loadServlets(Map<String, ServletConfiguration> servlets, Environment environment) throws ClassNotFoundException {
+    void loadServlets(Map<String, ServletConfiguration> servlets, Environment environment) throws ClassNotFoundException {
         if (servlets != null) {
             for (Map.Entry<String, ServletConfiguration> servletEntry : servlets.entrySet()) {
                 ServletConfiguration servlet = servletEntry.getValue();
@@ -145,7 +150,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
+    void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         if (resources != null) {
             for (String resource : resources) {
                 try {
@@ -158,7 +163,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
 
     }
 
-    private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
+    void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
                 try {
@@ -171,7 +176,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
+    void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
         if (manageds != null) {
             for (String managed : manageds) {
                 try {
@@ -183,7 +188,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
+    void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
         if (lifeCycles != null) {
             for (String lifeCycle : lifeCycles) {
                 try {
@@ -195,7 +200,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
+    void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
         if (providers != null) {
             for (String provider : providers) {
                 try {
@@ -207,7 +212,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
+    void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
         if (tasks != null) {
             for (String task : tasks) {
                 try {
@@ -219,7 +224,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void enableJerseyFeatures(List<String> features, Environment env) {
+    void enableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
                 env.jersey().enable(feature);
@@ -227,7 +232,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void disableJerseyFeatures(List<String> features, Environment env) {
+    void disableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
                 env.jersey().disable(feature);
@@ -235,13 +240,42 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private ApplicationContext initSpringParent() {
+    ApplicationContext initSpringParent() {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
                 new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
     }
 
-    private ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
+    ApplicationContext initSpringConfigBasedBeans(ApplicationContext parent, SpringConfiguration springConfiguration) {
+        StaticApplicationContext child = new StaticApplicationContext(parent);
+        child.refresh();
+
+        Map<String, BeanConfiguration> beanConfigs = springConfiguration.getBeans();
+        if (beanConfigs != null) {
+            try {
+                for (Map.Entry<String, BeanConfiguration> beanEntry : beanConfigs.entrySet()) {
+                    String title = beanEntry.getKey();
+                    BeanConfiguration beanConfig = beanEntry.getValue();
+
+                    Class clazz = Class.forName(beanConfig.getClazz());
+                    child.registerSingleton(title, clazz);
+
+                    Object bean = child.getBean(title, clazz);
+                    for (Map.Entry<String, Object> entry : beanConfig.getConfig().entrySet()) {
+                        PropertyUtils.setProperty(bean, entry.getKey(), entry.getValue());
+                    }
+                }
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        return child;
+    }
+
+    ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
         ApplicationContext appCtx = null;
         // Get Application Context Type
         String ctxType = config.getAppContextType();
@@ -269,7 +303,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         return appCtx;
     }
 
-    private void logNoSuchBeanDefinitionException(NoSuchBeanDefinitionException nsbde) {
+    void logNoSuchBeanDefinitionException(NoSuchBeanDefinitionException nsbde) {
         if (LOG.isWarnEnabled()) {
             LOG.warn("Skipping missing Spring bean: ", nsbde);
         }

@@ -9,6 +9,11 @@ entirely with spring, and tell the spring service which components to enable usi
 With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizard.Service`, instead you reference the provided 
 `com.hmsonline.dropwizard.spring.SpringService` class as  your service class.
 
+With **dropwizard-spring** 0.7+ it is possible to use your own `com.yammer.dropwizard.Service` (Application in dropwizard 0.7)
+and use the provided `com.hmsonline.dropwizard.spring.SpringBundle` class by adding `bootstrap.addBundle(new SpringBundle());`
+to the `initialize` method of your dropwizard Service/Application class. This allows you to subclass the SpringServiceConfiguration
+dropwizard Configuration object to add your own configuration settings, and also introduce your own logic into your
+dropwizard Service/Application.
 
 ## Maven Configuration
 
@@ -107,6 +112,34 @@ This is required to have maven build a "fat," executable jar file.
 	    # The location of one or more beans.xml files
 	    configLocations:
 	       - conf/dropwizard-beans.xml
+
+		# Beans to be created from the configuration provided
+		# These will be constructed *before* the configLocations are parsed allowing their values to be used.
+		#
+		# Example below reflects this equivalent spring XML config:
+		#	<bean name="uniqueBeanNameHere" class="class.to.Construct">
+		#		<property name="key1" value="value1"/>
+		#		<property name="key2" value="1234"/>
+		#		<property name="key3" value="true"/>
+		#	</bean>
+		#	<bean name="remoteApi" class="com.myapp.config.RemoteAP">
+		#		<property name="url" value="http://api.domain.com/rest/v2/"/>
+		#		<property name="username" value="myuser"/>
+		#		<property name="password" value="some-password-hash"/>
+		#	</bean>
+		beans:
+			uniqueBeanNameHere:
+				clazz: class.to.Construct
+				config:
+					key1: "value1"
+					key2: 1234
+					key3: true
+			remoteApi:
+				clazz: com.myapp.config.RemoteAPI
+				config:
+					url: "http://api.domain.com/rest/v2/"
+					username: "myuser"
+					password: "some-password-hash"
 
         # Servlet Filter
         # List of FilterConfiguration
