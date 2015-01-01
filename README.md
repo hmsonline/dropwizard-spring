@@ -9,6 +9,11 @@ entirely with spring, and tell the spring service which components to enable usi
 With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizard.Service`, instead you reference the provided 
 `com.hmsonline.dropwizard.spring.SpringService` class as  your service class.
 
+With **dropwizard-spring** 0.7+ it is possible to use your own `com.yammer.dropwizard.Service` (Application in dropwizard 0.7)
+and use the provided `com.hmsonline.dropwizard.spring.SpringBundle` class by adding `bootstrap.addBundle(new SpringBundle());`
+to the `initialize` method of your dropwizard Service/Application class. This allows you to subclass the SpringServiceConfiguration
+dropwizard Configuration object to add your own configuration settings, and also introduce your own logic into your
+dropwizard Service/Application.
 
 ## Maven Configuration
 
