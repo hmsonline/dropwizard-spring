@@ -78,7 +78,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
     /**
      * Load filter, servlets or listeners for WebApplicationContext.
      */
-    private void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
+    void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
         // Load filters.
         loadFilters(config.getFilters(), environment);
 
@@ -93,7 +93,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
      * Load all filters.
      */
     @SuppressWarnings("unchecked")
-    private void loadFilters(Map<String, FilterConfiguration> filters, Environment environment) throws ClassNotFoundException {
+    void loadFilters(Map<String, FilterConfiguration> filters, Environment environment) throws ClassNotFoundException {
         if (filters != null) {
             for (Map.Entry<String, FilterConfiguration> filterEntry : filters.entrySet()) {
                 FilterConfiguration filter = filterEntry.getValue();
@@ -121,7 +121,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
      * Load all servlets.
      */
     @SuppressWarnings("unchecked")
-    private void loadServlets(Map<String, ServletConfiguration> servlets, Environment environment) throws ClassNotFoundException {
+    void loadServlets(Map<String, ServletConfiguration> servlets, Environment environment) throws ClassNotFoundException {
         if (servlets != null) {
             for (Map.Entry<String, ServletConfiguration> servletEntry : servlets.entrySet()) {
                 ServletConfiguration servlet = servletEntry.getValue();
@@ -145,7 +145,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
+    void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
         if (resources != null) {
             for (String resource : resources) {
                 try {
@@ -158,7 +158,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
 
     }
 
-    private void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
+    void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
         if (healthChecks != null) {
             for (String healthCheck : healthChecks) {
                 try {
@@ -171,7 +171,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
+    void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
         if (manageds != null) {
             for (String managed : manageds) {
                 try {
@@ -183,7 +183,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
+    void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
         if (lifeCycles != null) {
             for (String lifeCycle : lifeCycles) {
                 try {
@@ -195,7 +195,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
+    void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
         if (providers != null) {
             for (String provider : providers) {
                 try {
@@ -207,7 +207,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
+    void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
         if (tasks != null) {
             for (String task : tasks) {
                 try {
@@ -219,7 +219,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void enableJerseyFeatures(List<String> features, Environment env) {
+    void enableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
                 env.jersey().enable(feature);
@@ -227,7 +227,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private void disableJerseyFeatures(List<String> features, Environment env) {
+    void disableJerseyFeatures(List<String> features, Environment env) {
         if (features != null) {
             for (String feature : features) {
                 env.jersey().disable(feature);
@@ -235,13 +235,13 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         }
     }
 
-    private ApplicationContext initSpringParent() {
+    ApplicationContext initSpringParent() {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
                 new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
     }
 
-    private ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
+    ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
         ApplicationContext appCtx = null;
         // Get Application Context Type
         String ctxType = config.getAppContextType();
@@ -269,7 +269,7 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         return appCtx;
     }
 
-    private void logNoSuchBeanDefinitionException(NoSuchBeanDefinitionException nsbde) {
+    void logNoSuchBeanDefinitionException(NoSuchBeanDefinitionException nsbde) {
         if (LOG.isWarnEnabled()) {
             LOG.warn("Skipping missing Spring bean: ", nsbde);
         }
