@@ -26,6 +26,7 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
         SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = initSpringParent();
+        parentCtx = wrapApplicationContext(parentCtx, config);
 
         Dropwizard dw = (Dropwizard) parentCtx.getBean("dropwizard");
         dw.setConfiguration(configuration);
@@ -50,6 +51,19 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
 
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
+    }
+
+    /**
+     * This allows you to wrap the ApplicationContext, potentially with another ApplicationContext to extend the base
+     * functionality to meet your needs. Don't forget to refresh any new ApplicationContext's you create!
+     *
+     * @param parent Root Application Context
+     * @param config SpringConfiguration object for reference
+     * @return Application Context for further use
+     */
+    @SuppressWarnings("unused")
+    protected ApplicationContext wrapApplicationContext(ApplicationContext parent, SpringConfiguration config) {
+        return parent;
     }
 
     void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
