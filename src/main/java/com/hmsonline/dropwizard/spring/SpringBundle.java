@@ -26,12 +26,12 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
         SpringConfiguration config = configuration.getSpring();
 
         ApplicationContext parentCtx = initSpringParent();
-        parentCtx = wrapApplicationContext(parentCtx, config);
 
         Dropwizard dw = (Dropwizard) parentCtx.getBean("dropwizard");
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
 
+        parentCtx = wrapApplicationContext(parentCtx, config);
         parentCtx = initSpringConfigBasedBeans(parentCtx, config);
 
         ApplicationContext appCtx = initSpring(config, parentCtx);
