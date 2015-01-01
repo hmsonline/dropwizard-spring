@@ -8,8 +8,12 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.springframework.context.ApplicationContext;
 
+import java.util.List;
+
 
 public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration> {
+
+    SpringService service = new SpringService();
 
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
@@ -21,32 +25,75 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
     public void run(SpringServiceConfiguration configuration, Environment environment) {
         SpringConfiguration config = configuration.getSpring();
 
-        SpringService service = new SpringService();
-        ApplicationContext parentCtx = service.initSpringParent();
+        ApplicationContext parentCtx = initSpringParent();
 
         Dropwizard dw = (Dropwizard) parentCtx.getBean("dropwizard");
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
 
-        ApplicationContext appCtx = service.initSpring(config, parentCtx);
-        service.loadResourceBeans(config.getResources(), appCtx, environment);
-        service.loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
-        service.loadManagedBeans(config.getManaged(), appCtx, environment);
-        service.loadLifeCycleBeans(config.getLifeCycles(), appCtx, environment);
-        service.loadJerseyProviders(config.getJerseyProviders(), appCtx, environment);
-        service.loadTasks(config.getTasks(), appCtx, environment);
+        ApplicationContext appCtx = initSpring(config, parentCtx);
+        loadResourceBeans(config.getResources(), appCtx, environment);
+        loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
+        loadManagedBeans(config.getManaged(), appCtx, environment);
+        loadLifeCycleBeans(config.getLifeCycles(), appCtx, environment);
+        loadJerseyProviders(config.getJerseyProviders(), appCtx, environment);
+        loadTasks(config.getTasks(), appCtx, environment);
 
         // Load filter or listeners for WebApplicationContext.
         if (appCtx instanceof XmlRestWebApplicationContext) {
             try {
-                service.loadWebConfigs(environment, config, appCtx);
+                loadWebConfigs(environment, config, appCtx);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("CNFE when loading spring web configs: " + e.getMessage(), e);
             }
         }
 
-        service.enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
-        service.disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
+        enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
+        disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
+    }
+
+    void loadWebConfigs(Environment environment, SpringConfiguration config, ApplicationContext appCtx) throws ClassNotFoundException {
+        service.loadWebConfigs(environment, config, appCtx);
+    }
+
+    void loadResourceBeans(List<String> resources, ApplicationContext ctx, Environment env) {
+        service.loadResourceBeans(resources, ctx, env);
+    }
+
+    void loadHealthCheckBeans(List<String> healthChecks, ApplicationContext ctx, Environment env) {
+        service.loadHealthCheckBeans(healthChecks, ctx, env);
+    }
+
+    void loadManagedBeans(List<String> manageds, ApplicationContext ctx, Environment env) {
+        service.loadManagedBeans(manageds, ctx, env);
+    }
+
+    void loadLifeCycleBeans(List<String> lifeCycles, ApplicationContext ctx, Environment env) {
+        service.loadLifeCycleBeans(lifeCycles, ctx, env);
+    }
+
+    void loadJerseyProviders(List<String> providers, ApplicationContext ctx, Environment env) {
+        service.loadJerseyProviders(providers, ctx, env);
+    }
+
+    void loadTasks(List<String> tasks, ApplicationContext ctx, Environment env) {
+        service.loadTasks(tasks, ctx, env);
+    }
+
+    void enableJerseyFeatures(List<String> features, Environment env) {
+        service.enableJerseyFeatures(features, env);
+    }
+
+    void disableJerseyFeatures(List<String> features, Environment env) {
+        service.disableJerseyFeatures(features, env);
+    }
+
+    ApplicationContext initSpringParent() {
+        return service.initSpringParent();
+    }
+
+    ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
+        return service.initSpring(config, parent);
     }
 
 }
