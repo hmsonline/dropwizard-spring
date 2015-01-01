@@ -32,6 +32,8 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
 
+        parentCtx = initSpringConfigBasedBeans(parentCtx, config);
+
         ApplicationContext appCtx = initSpring(config, parentCtx);
         loadResourceBeans(config.getResources(), appCtx, environment);
         loadHealthCheckBeans(config.getHealthChecks(), appCtx, environment);
@@ -104,6 +106,10 @@ public class SpringBundle implements ConfiguredBundle<SpringServiceConfiguration
 
     ApplicationContext initSpringParent() {
         return service.initSpringParent();
+    }
+
+    ApplicationContext initSpringConfigBasedBeans(ApplicationContext parent, SpringConfiguration springConfiguration) {
+        return service.initSpringConfigBasedBeans(parent, springConfiguration);
     }
 
     ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
