@@ -30,6 +30,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<dropwizard.version>0.7.0</dropwizard.version>
 		<spring.version>3.2.8.RELEASE</spring.version>
+		<beanutils.version>1.7.0</beanutils.version>
 	</properties>
 
 	<scm>
@@ -67,6 +68,11 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>${beanutils.version}</version>
+		</dependency>
         <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

@@ -1,4 +1,5 @@
 // Copyright (c) 2012 Health Market Science, Inc.
+// Extended by Hardiker Ltd
 package com.hmsonline.dropwizard.spring;
 
 import java.text.MessageFormat;
@@ -16,6 +17,7 @@ import io.dropwizard.Application;
 import io.dropwizard.servlets.tasks.Task;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -57,6 +60,8 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         Dropwizard dw = (Dropwizard) parentCtx.getBean("dropwizard");
         dw.setConfiguration(configuration);
         dw.setEnvironment(environment);
+
+        parentCtx = initSpringConfigBasedBeans(parentCtx, config);
 
         ApplicationContext appCtx = initSpring(config, parentCtx);
         loadResourceBeans(config.getResources(), appCtx, environment);
@@ -239,6 +244,35 @@ public class SpringService extends Application<SpringServiceConfiguration> {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
                 new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
+    }
+
+    ApplicationContext initSpringConfigBasedBeans(ApplicationContext parent, SpringConfiguration springConfiguration) {
+        StaticApplicationContext child = new StaticApplicationContext(parent);
+        child.refresh();
+
+        Map<String, BeanConfiguration> beanConfigs = springConfiguration.getBeans();
+        if (beanConfigs != null) {
+            try {
+                for (Map.Entry<String, BeanConfiguration> beanEntry : beanConfigs.entrySet()) {
+                    String title = beanEntry.getKey();
+                    BeanConfiguration beanConfig = beanEntry.getValue();
+
+                    Class clazz = Class.forName(beanConfig.getClazz());
+                    child.registerSingleton(title, clazz);
+
+                    Object bean = child.getBean(title, clazz);
+                    for (Map.Entry<String, Object> entry : beanConfig.getConfig().entrySet()) {
+                        PropertyUtils.setProperty(bean, entry.getKey(), entry.getValue());
+                    }
+                }
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+
+        return child;
     }
 
     ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
