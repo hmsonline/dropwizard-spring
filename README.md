@@ -113,6 +113,34 @@ This is required to have maven build a "fat," executable jar file.
 	    configLocations:
 	       - conf/dropwizard-beans.xml
 
+		# Beans to be created from the configuration provided
+		# These will be constructed *before* the configLocations are parsed allowing their values to be used.
+		#
+		# Example below reflects this equivalent spring XML config:
+		#	<bean name="uniqueBeanNameHere" class="class.to.Construct">
+		#		<property name="key1" value="value1"/>
+		#		<property name="key2" value="1234"/>
+		#		<property name="key3" value="true"/>
+		#	</bean>
+		#	<bean name="remoteApi" class="com.myapp.config.RemoteAP">
+		#		<property name="url" value="http://api.domain.com/rest/v2/"/>
+		#		<property name="username" value="myuser"/>
+		#		<property name="password" value="some-password-hash"/>
+		#	</bean>
+		beans:
+			uniqueBeanNameHere:
+				clazz: class.to.Construct
+				config:
+					key1: "value1"
+					key2: 1234
+					key3: true
+			remoteApi:
+				clazz: com.myapp.config.RemoteAPI
+				config:
+					url: "http://api.domain.com/rest/v2/"
+					username: "myuser"
+					password: "some-password-hash"
+
         # Servlet Filter
         # List of FilterConfiguration
         filters:

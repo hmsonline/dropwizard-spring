@@ -1,4 +1,5 @@
 // Copyright (c) 2012 Health Market Science, Inc.
+// Extended by Hardiker Ltd
 
 package com.hmsonline.dropwizard.spring;
 
@@ -34,6 +35,9 @@ public class SpringConfiguration extends Configuration {
     @NotEmpty
     @JsonProperty
     private List<String> resources;
+
+    @JsonProperty
+    private Map<String, BeanConfiguration> beans;
 
     @JsonProperty
     private List<String> healthChecks;
@@ -73,6 +77,10 @@ public class SpringConfiguration extends Configuration {
 
     public List<String> getResources() {
         return resources;
+    }
+
+    public Map<String, BeanConfiguration> getBeans() {
+        return beans;
     }
 
     public List<String> getHealthChecks() {
