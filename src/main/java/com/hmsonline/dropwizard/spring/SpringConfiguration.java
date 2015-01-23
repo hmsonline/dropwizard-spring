@@ -50,12 +50,14 @@ public class SpringConfiguration extends Configuration {
     @JsonProperty
     private List<String> tasks;
 
-
     @JsonProperty
     private List<String> disabledJerseyFeatures;
 
     @JsonProperty
     private List<String> enabledJerseyFeatures;
+    
+    @JsonProperty
+    private Map<String, String> jerseyProperties;
 
     @JsonProperty
     private Map<String, FilterConfiguration> filters;
@@ -97,6 +99,10 @@ public class SpringConfiguration extends Configuration {
 
     public List<String> getEnabledJerseyFeatures() {
         return enabledJerseyFeatures;
+    }
+    
+    public Map<String, String> getJerseyProperties() {
+        return jerseyProperties;
     }
 
     public List<String> getTasks() {

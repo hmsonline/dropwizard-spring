@@ -11,6 +11,7 @@ import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
 import com.yammer.dropwizard.config.FilterBuilder;
 import com.yammer.dropwizard.config.ServletBuilder;
+
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -67,6 +68,8 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         enableJerseyFeatures(config.getEnabledJerseyFeatures(), environment);
         disableJerseyFeatures(config.getDisabledJerseyFeatures(), environment);
 
+        setJerseyProperties(config.getJerseyProperties(), environment);
+        
     }
 
     /**
@@ -189,6 +192,14 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         if (features != null) {
             for (String feature : features) {
                 env.disableJerseyFeature(feature);
+            }
+        }
+    }
+    
+    private void setJerseyProperties(Map<String, String> properties, Environment env) {
+        if (properties != null) {
+            for (Map.Entry<String, String> propertyEntry : properties.entrySet()) {
+                env.setJerseyProperty(propertyEntry.getKey(), propertyEntry.getValue());
             }
         }
     }
