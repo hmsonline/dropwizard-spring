@@ -17,7 +17,7 @@ With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizar
 	<dependency>
 		<groupId>com.hmsonline</groupId>
 		<artifactId>dropwizard-spring</artifactId>
-		<version>0.5.1</version>
+		<version>0.5.3</version>
 	</dependency>
 
 **Maven Shade Plugin Configuration**
