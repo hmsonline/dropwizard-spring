@@ -12,6 +12,7 @@ import com.hmsonline.dropwizard.spring.web.XmlRestWebApplicationContext;
 import com.yammer.dropwizard.config.FilterBuilder;
 import com.yammer.dropwizard.config.ServletBuilder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.yammer.dropwizard.Service;
@@ -50,6 +52,8 @@ public class SpringService extends Service<SpringServiceConfiguration> {
     public void run(SpringServiceConfiguration configuration, Environment environment) throws ClassNotFoundException {
         SpringConfiguration config = configuration.getSpring();
 
+        setProfiles(config.getProfiles());
+        
         ApplicationContext parentCtx = this.initSpringParent();
 
         Dropwizard dw = (Dropwizard) parentCtx.getBean("dropwizard");
@@ -236,6 +240,14 @@ public class SpringService extends Service<SpringServiceConfiguration> {
         ApplicationContext parent = new ClassPathXmlApplicationContext(
                 new String[]{"dropwizardSpringApplicationContext.xml"}, true);
         return parent;
+    }
+    
+    private void setProfiles(List<String> profiles) {
+        if (CollectionUtils.isEmpty(profiles)) {
+            return;
+        }
+        
+        System.setProperty("spring.profiles.active", StringUtils.join(profiles, ","));
     }
 
     private ApplicationContext initSpring(SpringConfiguration config, ApplicationContext parent) {
