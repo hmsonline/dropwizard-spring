@@ -1,5 +1,9 @@
 Dropwizard 0.6.2 Supported Releases
 
+## 0.5.4
+
+* [#22][]: Added support for Spring Profiles
+
 ## 0.5.3
 
 * [#19][]: Added the ability to configure jersey properties via configuration
@@ -18,3 +22,4 @@ Dropwizard 0.6.2 Supported Releases
 
 [#16]: https://github.com/hmsonline/dropwizard-spring/issues/16
 [#19]: https://github.com/hmsonline/dropwizard-spring/issues/19
+[#22]: https://github.com/hmsonline/dropwizard-spring/issues/22
