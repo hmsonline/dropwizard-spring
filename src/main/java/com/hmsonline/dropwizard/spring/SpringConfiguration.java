@@ -64,6 +64,9 @@ public class SpringConfiguration extends Configuration {
 
     @JsonProperty
     private Map<String, ServletConfiguration> servlets;
+    
+    @JsonProperty
+    private List<String> profiles;
 
     public String getAppContextType() {
         return appContextType;
@@ -123,6 +126,14 @@ public class SpringConfiguration extends Configuration {
 
     public void setServlets(Map<String, ServletConfiguration> servlets) {
         this.servlets = servlets;
+    }
+
+    public List<String> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<String> profiles) {
+        this.profiles = profiles;
     }
 
     public String getConfigLocationsType() {
