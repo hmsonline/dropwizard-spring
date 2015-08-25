@@ -11,6 +11,7 @@ With **dropwizard-spring** it is not necessary to subclass `io.dropwizard.Applic
 
 With **dropwizard-spring** you can use XML or annotation based (Java Based Config) spring bean definitions 
 
+To see **dropwizard-spring** in action look into the example folder of this project
 
 ## Maven Configuration
 
