@@ -2,34 +2,60 @@
 
 package com.hmsonline.dropwizard.spring;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.hmsonline.dropwizard.spring.web.FilterConfiguration;
 import com.hmsonline.dropwizard.spring.web.ServletConfiguration;
 import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SpringConfiguration extends Configuration {
 
-    public static final String WEB_APPLICATION_CONTEXT = "web";
-    public static final String APPLICATION_CONTEXT = "app";
+    public enum ApplicationContextType {
+        WEB_APPLICATION_CONTEXT("web"),APPLICATION_CONTEXT("app");
+
+        private String name;
+
+        ApplicationContextType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+
 
     public static final String CLASSPATH_CONFIG = "classpath";
     public static final String FILE_CONFIG = "file";
 
     @NotEmpty
     @JsonProperty
-    private String appContextType;
+    @JsonDeserialize(using = ApplicationContextTypeDeserializer.class)
+    private ApplicationContextType appContextType;
 
     @NotEmpty
     @JsonProperty
     private String configLocationsType;
 
-    @NotEmpty
     @JsonProperty
     private List<String> configLocations;
+
+    @JsonProperty
+    private List<String> javaConfigBasePackages;
 
     @NotEmpty
     @JsonProperty
@@ -63,7 +89,7 @@ public class SpringConfiguration extends Configuration {
     @JsonProperty
     private Map<String, ServletConfiguration> servlets;
 
-    public String getAppContextType() {
+    public ApplicationContextType getAppContextType() {
         return appContextType;
     }
 
@@ -125,5 +151,13 @@ public class SpringConfiguration extends Configuration {
 
     public void setConfigLocationsType(String configLocationsType) {
         this.configLocationsType = configLocationsType;
+    }
+
+    public List<String> getJavaConfigBasePackages() {
+        return javaConfigBasePackages;
+    }
+
+    public void setJavaConfigBasePackages(List<String> javaConfigBasePackages) {
+        this.javaConfigBasePackages = javaConfigBasePackages;
     }
 }

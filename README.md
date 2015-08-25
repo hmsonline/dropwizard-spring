@@ -6,9 +6,12 @@ dropwizard-spring
 With **dropwizard-spring** you configure your dropwizard components (resources, healthchecks, jersey providers, managed objects, servlets, filters, etc.) 
 entirely with spring, and tell the spring service which components to enable using a simple YAML configuration.
 
-With **dropwizard-spring** it is not necessary to subclass `com.yammer.dropwizard.Service`, instead you reference the provided 
-`com.hmsonline.dropwizard.spring.SpringService` class as  your service class.
+With **dropwizard-spring** it is not necessary to subclass `io.dropwizard.Application`, instead you reference the provided 
+`com.hmsonline.dropwizard.spring.SpringService` class as your application class.
 
+With **dropwizard-spring** you can use XML or annotation based (Java Based Config) spring bean definitions 
+
+To see **dropwizard-spring** in action look into the example folder of this project
 
 ## Maven Configuration
 
@@ -107,6 +110,11 @@ This is required to have maven build a "fat," executable jar file.
 	    # The location of one or more beans.xml files
 	    configLocations:
 	       - conf/dropwizard-beans.xml
+	       
+	    # Package to look for JavaConfig classes annotated with @Configuration
+	    # Set either javaConfigBasePackages or configLocations
+	    javaConfigBasePackages:
+           - com.yourpackage.spring.config	    
 
         # Servlet Filter
         # List of FilterConfiguration

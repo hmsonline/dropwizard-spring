@@ -1,0 +1,8 @@
+spring:
+    appContextType: app
+
+    javaConfigBasePackages:
+       - com.hmsonline.dropwizard.spring.config
+
+    resources:
+       - helloResource

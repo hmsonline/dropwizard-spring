@@ -8,11 +8,11 @@
 	</prerequisites>
 
 	<groupId>com.hmsonline</groupId>
-	<artifactId>dropwizard-spring-example</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
+	<artifactId>dropwizard-spring-javaconfig-example</artifactId>
+	<version>0.6.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Dropwizard-Spring Example</name>
+	<name>Dropwizard-Spring Java Config Example</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
