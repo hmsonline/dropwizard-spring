@@ -111,9 +111,9 @@ This is required to have maven build a "fat," executable jar file.
 	       - conf/dropwizard-beans.xml
 	       
 	    # Package to look for JavaConfig classes annotated with @Configuration
-	    #Set either javaConfigBasePackages or configLocations
+	    # Set either javaConfigBasePackages or configLocations
 	    javaConfigBasePackages:
-           - com.hmsonline.dropwizard.spring.config	    
+           - com.yourpackage.spring.config	    
 
         # Servlet Filter
         # List of FilterConfiguration
